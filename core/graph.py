@@ -1,5 +1,6 @@
 import random
 import math
+import heapq
 from core.node import Node
 from core.distance import l2_distance
 def assign_layer(M:int)->int:
@@ -40,3 +41,32 @@ class HNSWGraph:
                 break
 
         return current       
+
+    def search_layer(self, query_vector, entry_id, layer, ef):
+        candidates=[]
+        results=[]
+        visited=set()
+        distance=l2_distance(query_vector,self.nodes[entry_id].vector)
+        heapq.heappush(candidates,(distance,entry_id))
+        heapq.heappush(results,(-distance,entry_id))
+        visited.add(entry_id)
+        while candidates:
+            dist,current=heapq.heappop(candidates)
+            if len(results)==ef and dist>-results[0][0]:
+                break
+            layers=self.nodes[current].neighbors.get(layer,[])
+            for l in layers:
+                if l in visited:
+                    continue
+                else:
+                    visited.add(l)
+                    d=l2_distance(query_vector,self.nodes[l].vector) 
+                    heapq.heappush(candidates,(d,l))
+                    heapq.heappush(results,(-d,l))
+                    if len(results)>ef:
+                        heapq.heappop(results)
+        final=[]
+        for neg_dist,node_id in results:
+            final.append((node_id,-neg_dist))
+        sorted_final=sorted(final,key=lambda pair:pair[1])
+        return sorted_final
