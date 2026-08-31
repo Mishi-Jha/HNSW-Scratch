@@ -14,10 +14,11 @@ def assign_layer(M:int)->int:
 
 
 class HNSWGraph:
-    def __init__(self, M=16):
+    def __init__(self, M=16,ef_construction=100):
         self.nodes={}
         self.entry_point=None
         self.M=M
+        self.ef_construction=ef_construction
         self.max_layer=-1
 
     def insert(self,id,vector):
@@ -26,7 +27,29 @@ class HNSWGraph:
         if len(self.nodes)==0:
             self.entry_point=node
             self.max_layer=layer
+            self.nodes[id]=node
+            return
         self.nodes[id]=node
+        current_entry=self.entry_point.id
+        n_layer=self.max_layer
+        while node.max_layer<n_layer:
+            current_entry=self.search_layer_greedy(node.vector,current_entry,n_layer)
+            n_layer-=1
+
+        n_min_layer=min(node.max_layer,self.max_layer)    
+        while n_min_layer>=0:
+            candidates_list=self.search_layer(node.vector,current_entry,n_min_layer,self.ef_construction)
+            candidates_list=candidates_list[:self.M]
+            for cand_id,dist in candidates_list:
+                node.neighbors.setdefault(n_min_layer,[]).append(cand_id)
+                self.nodes[cand_id].neighbors.setdefault(n_min_layer,[]).append(node.id)
+            if candidates_list:
+                current_entry=candidates_list[0][0]    
+            n_min_layer-=1
+        if node.max_layer>self.max_layer:
+            self.max_layer=node.max_layer
+            self.entry_point=node
+
 
     def search_layer_greedy(self,query_vector,entry_id,layer):
         current=entry_id

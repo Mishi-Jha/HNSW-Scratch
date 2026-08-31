@@ -26,3 +26,17 @@ def test_search_layer():
 
     result_ids = [r[0] for r in result]
     assert result_ids == [2, 1]    
+
+def test_insert_creates_bidirectional_edges():
+    g = HNSWGraph(M=2, ef_construction=10)
+    g.insert(0, np.array([0, 0]))
+    g.insert(1, np.array([1, 1]))
+    g.insert(2, np.array([10, 10]))
+
+    assert set(g.nodes.keys()) == {0, 1, 2}
+
+    for node_id, node in g.nodes.items():
+        for layer, neighbor_ids in node.neighbors.items():
+            for neighbor_id in neighbor_ids:    
+                assert node_id in g.nodes[neighbor_id].neighbors.get(layer, []), \
+                    f"node {node_id} lists {neighbor_id} at layer {layer}, but not reciprocated"
