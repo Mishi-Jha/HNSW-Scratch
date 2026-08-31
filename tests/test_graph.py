@@ -40,3 +40,22 @@ def test_insert_creates_bidirectional_edges():
             for neighbor_id in neighbor_ids:    
                 assert node_id in g.nodes[neighbor_id].neighbors.get(layer, []), \
                     f"node {node_id} lists {neighbor_id} at layer {layer}, but not reciprocated"
+
+
+def test_search_matches_brute_force_on_small_graph():
+    from baseline.brute_force import brute_force_knn
+
+    g = HNSWGraph(M=4, ef_construction=20)
+    dataset = np.array([[0,0], [1,1], [10,10], [20,20], [15,15]])
+    for i, vec in enumerate(dataset):
+        g.insert(i, vec)
+
+    query = np.array([9,9])
+    hnsw_result = g.search(query, k=2, ef_search=10)
+    hnsw_ids = set(r[0] for r in hnsw_result)
+
+    brute_result = brute_force_knn(query, dataset, k=2)
+    brute_ids = set(r[0] for r in brute_result)
+
+    assert hnsw_ids == brute_ids
+                

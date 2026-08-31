@@ -51,6 +51,17 @@ class HNSWGraph:
             self.entry_point=node
 
 
+    def search(self, query_vector, k, ef_search):
+            if self.entry_point is None:
+                return[]
+            current_entry=self.entry_point.id
+            n_layer=self.max_layer
+            while n_layer>0:
+                current_entry=self.search_layer_greedy(query_vector,current_entry,n_layer)
+                n_layer-=1
+            candidates=self.search_layer(query_vector,current_entry,0,ef_search)
+            return candidates[:k]
+
     def search_layer_greedy(self,query_vector,entry_id,layer):
         current=entry_id
         while True:
