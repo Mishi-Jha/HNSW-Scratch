@@ -5,7 +5,7 @@ from baseline.brute_force import brute_force_knn
 from bench.dataset import generate_random_dataset
 from bench.latency import measure_latency
 
-dataset = generate_random_dataset(n=500, dim=16, seed=42)
+dataset = generate_random_dataset(n=50000, dim=16, seed=42)
 
 g = HNSWGraph(M=8, ef_construction=50)
 for i, vec in enumerate(dataset):

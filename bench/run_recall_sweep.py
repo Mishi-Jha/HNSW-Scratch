@@ -5,7 +5,7 @@ from bench.dataset import generate_random_dataset
 from bench.recall import recall_at_k, evaluate_recall
 
 # generate a modest dataset
-dataset = generate_random_dataset(n=500, dim=16, seed=42)
+dataset = generate_random_dataset(n=50000, dim=16, seed=42)
 
 # build the graph
 g = HNSWGraph(M=8, ef_construction=50)
