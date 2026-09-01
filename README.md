@@ -35,6 +35,9 @@ Tested on 50,000 synthetic 16-dimensional vectors, k=10:
 | 50  | 1.000 | 4.376 ms |
 | 100 | 1.000 | 5.821 ms |
 
+![Recall vs ef_search](bench/results/recall_vs_ef.png)
+![Latency vs ef_search](bench/results/latency_vs_ef.png)
+
 **Brute-force baseline:** 7.523 ms (exact, but scales linearly with dataset size)
 **ChromaDB:** 6.785 ms
 
