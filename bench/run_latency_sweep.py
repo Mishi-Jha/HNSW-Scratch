@@ -1,10 +1,9 @@
-
 import numpy as np
 from core.graph import HNSWGraph
 from baseline.brute_force import brute_force_knn
 from bench.dataset import generate_random_dataset
 from bench.latency import measure_latency
-
+from bench.chroma_baseline import build_chroma_collection, query_chroma
 dataset = generate_random_dataset(n=50000, dim=16, seed=42)
 
 g = HNSWGraph(M=8, ef_construction=50)
@@ -27,3 +26,11 @@ for ef in [5, 10, 20, 50, 100]:
         queries
     )
     print(f"HNSW ef_search={ef}: avg latency = {hnsw_latency*1000:.3f} ms")
+
+collection = build_chroma_collection(dataset)
+
+chroma_latency = measure_latency(
+    lambda q: query_chroma(collection, q, 10),
+    queries
+)
+print(f"ChromaDB avg latency: {chroma_latency*1000:.3f} ms")    
